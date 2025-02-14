@@ -41,7 +41,17 @@ export type Something = {
   name: Scalars['String']['output'];
 };
 
-
+export type Todo = {
+  __typename?: 'Todo';
+  id: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+  completed: Scalars['Boolean']['output'];
+/**
+ * Not yet implemented
+ createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ */
+};
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
 
