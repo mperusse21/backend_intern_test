@@ -21,6 +21,7 @@ export type CreateSomethingInput = {
 };
 
 export type CreateTodoInput = {
+  dueDate?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
 };
 
@@ -70,7 +71,8 @@ export type QueryTodoArgs = {
 
 
 export type QueryTodosArgs = {
-  completed?: InputMaybe<Scalars['Boolean']['input']>;
+  isCompleted?: InputMaybe<Scalars['Boolean']['input']>;
+  isOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
   sortByCreatedAt?: InputMaybe<SortOrder>;
   take?: InputMaybe<Scalars['Int']['input']>;
@@ -91,6 +93,7 @@ export type Todo = {
   __typename?: 'Todo';
   completed: Scalars['Boolean']['output'];
   createdAt: Scalars['String']['output'];
+  dueDate?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   title: Scalars['String']['output'];
   updatedAt: Scalars['String']['output'];
@@ -226,6 +229,7 @@ export type SomethingResolvers<ContextType = any, ParentType extends ResolversPa
 export type TodoResolvers<ContextType = any, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = {
   completed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dueDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

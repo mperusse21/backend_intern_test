@@ -23,9 +23,22 @@ export const Mutation: IMutation<Context> = {
       throw new GraphQLError("Cannot create Todo with an empty title");
     }
 
+    let convertedDueDate = null;
+
+    if (input.dueDate){
+      convertedDueDate = new Date(input.dueDate);
+      if (isNaN(convertedDueDate.valueOf())){
+        throw new GraphQLError(
+          `Due date string '${input.dueDate}' was not in a valid format.` 
+          + ` Please try using either YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss.sssZ.`
+        );
+      }
+    }
+
     const todo = await prisma.todo.create({
       data: {
         title: input.title,
+        dueDate: convertedDueDate 
       },
     });
 
@@ -35,6 +48,7 @@ export const Mutation: IMutation<Context> = {
       completed: todo.completed,
       createdAt: todo.createdAt.toString(),
       updatedAt: todo.updatedAt.toString(),
+      dueDate: todo.dueDate?.toString()
     };
   },
   // Updates a todo with a provided title and/or completed status.
@@ -75,6 +89,7 @@ export const Mutation: IMutation<Context> = {
       completed: todo.completed,
       createdAt: todo.createdAt.toString(),
       updatedAt: todo.updatedAt.toString(),
+      dueDate: todo.dueDate?.toString()
     };
   },
     // Deletes a todo with the given ID. Returns the todo if successful.
@@ -100,6 +115,7 @@ export const Mutation: IMutation<Context> = {
         completed: todo.completed,
         createdAt: todo.createdAt.toString(),
         updatedAt: todo.updatedAt.toString(),
+        dueDate: todo.dueDate?.toString()
       };
     }
 };
