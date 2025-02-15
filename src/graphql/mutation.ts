@@ -58,6 +58,7 @@ export const Mutation: IMutation<Context> = {
         // Needed because title and completed aren't nullable in the Todo table.
         title: input.title ?? undefined,
         completed: input.completed ?? undefined,
+        updatedAt: new Date()
       },
     });
 
