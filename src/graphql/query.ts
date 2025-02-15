@@ -11,7 +11,7 @@ export const Query: IQuery<Context> = {
       },
     });
 
-    // If no todo is found, returns null
+    // If no Todo is found, returns null
     if (!todo) {
       return null;
     }
@@ -24,12 +24,19 @@ export const Query: IQuery<Context> = {
       updatedAt: todo.updatedAt.toString(),
     };
   },
-  // Returns an array of all Todos. Can be filtered by completion status.
-  todos: async (_, { completed }, { prisma }) => {
+  // Returns an array of all Todos. Has options to filter by completion status 
+  // or skip/take a certain number of Todos (pagination).
+  todos: async (_, { completed, skip, take }, { prisma }) => {
     const todos = await prisma.todo.findMany({
+      skip: skip ?? 0,
+      take: take ?? undefined,
       where: {
         completed: completed ?? undefined,
       },
+      // Default order is most recent first
+      orderBy: {
+        createdAt: 'desc',
+      }
     });
 
     // Convert all the Todo dates into strings
