@@ -6,7 +6,7 @@ export const typeDefs = /* GraphQL */ `
   input CreateTodoInput {
     title: String!
   }
-  
+
   input UpdateTodoInput {
     id: ID!
     title: String
@@ -34,5 +34,6 @@ export const typeDefs = /* GraphQL */ `
 
   type Query {
     hello: String
+    getTodoById(id: ID!): Todo
   }
 `;

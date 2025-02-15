@@ -1,6 +1,6 @@
 import { type MutationResolvers as IMutation } from "./generated/graphql";
 import { Context } from "./context";
-import { GraphQLError } from "graphql";
+import { GraphQLError } from "graphql/error/GraphQLError";
 
 export const Mutation: IMutation<Context> = {
   createSomething: async (_, { input }, { prisma }) => {
@@ -40,8 +40,10 @@ export const Mutation: IMutation<Context> = {
   updateTodo: async (_, { input }, { prisma }) => {
     // If no input is provided, throw an error.
     console.log(input);
-    if (input.title === undefined && input.completed === undefined){
-      throw new GraphQLError("Please provide a title and/or completion status to update");
+    if (input.title === undefined && input.completed === undefined) {
+      throw new GraphQLError(
+        "Please provide a title and/or completion status to update"
+      );
     }
 
     // Throw an error if the title string is empty
@@ -54,11 +56,11 @@ export const Mutation: IMutation<Context> = {
         id: input.id,
       },
       data: {
-        // If either of these are null, converts them to undefined. 
+        // If either of these are null, converts them to undefined.
         // Needed because title and completed aren't nullable in the Todo table.
         title: input.title ?? undefined,
         completed: input.completed ?? undefined,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
     });
 
