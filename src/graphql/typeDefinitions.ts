@@ -5,6 +5,7 @@ export const typeDefs = /* GraphQL */ `
 
   input CreateTodoInput {
     title: String!
+    dueDate: String
   }
 
   input UpdateTodoInput {
@@ -33,6 +34,7 @@ export const typeDefs = /* GraphQL */ `
     completed: Boolean!
     createdAt: String!
     updatedAt: String!
+    dueDate: String
   }
 
   type Mutation {
@@ -45,6 +47,12 @@ export const typeDefs = /* GraphQL */ `
   type Query {
     hello: String
     todo(id: ID!): Todo
-    todos(completed: Boolean, skip: Int, take: Int, sortByCreatedAt: SortOrder): [Todo]!
+    todos(
+      isCompleted: Boolean
+      isOverdue: Boolean
+      skip: Int
+      take: Int
+      sortByCreatedAt: SortOrder
+    ): [Todo]!
   }
 `;

@@ -23,4 +23,5 @@ model Todo {
   completed Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  dueDate DateTime?
 }
