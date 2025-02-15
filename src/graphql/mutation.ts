@@ -19,7 +19,7 @@ export const Mutation: IMutation<Context> = {
   createTodo: async (_, { input }, { prisma }) => {
     // Throw an error if the string is empty
     if (input.title.length == 0) {
-      throw new GraphQLError("Cannot create todo with an empty title");
+      throw new GraphQLError("Cannot create Todo with an empty title");
     }
 
     const todo = await prisma.todo.create({
@@ -38,6 +38,16 @@ export const Mutation: IMutation<Context> = {
   },
   // Updates a todo with a provided title and/or completed status.
   updateTodo: async (_, { input }, { prisma }) => {
+    // If no input is provided, throw an error.
+    console.log(input);
+    if (input.title === undefined && input.completed === undefined){
+      throw new GraphQLError("Please provide a title and/or completion status to update");
+    }
+
+    // Throw an error if the title string is empty
+    if (input.title != null && input.title.length == 0) {
+      throw new GraphQLError("Cannot update Todo with an empty title");
+    }
 
     const todo = await prisma.todo.update({
       where: {
