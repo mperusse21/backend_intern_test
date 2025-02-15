@@ -34,6 +34,6 @@ export const typeDefs = /* GraphQL */ `
 
   type Query {
     hello: String
-    getTodoById(id: ID!): Todo
+    todo(id: ID!): Todo
   }
 `;

@@ -4,7 +4,7 @@ import { Context } from "./context";
 export const Query: IQuery<Context> = {
   hello: () => "world",
   // Gets a single Todo by ID (can be null)
-  getTodoById: async (_, { id }, { prisma }) => {
+  todo: async (_, { id }, { prisma }) => {
     const todo = await prisma.todo.findUnique({
       where: {
         id: id,
