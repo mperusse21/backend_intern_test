@@ -19,7 +19,7 @@ export const Mutation: IMutation<Context> = {
   // Adds a todo with a given title. Everything else auto generated.
   createTodo: async (_, { input }, { prisma }) => {
     // Throw an error if the string is empty
-    if (input.title.length == 0) {
+    if (input.title === "") {
       throw new GraphQLError("Cannot create Todo with an empty title");
     }
 
@@ -45,7 +45,7 @@ export const Mutation: IMutation<Context> = {
     }
 
     // Throw an error if the title string is empty
-    if (input.title != null && input.title.length == 0) {
+    if (input.title === "") {
       throw new GraphQLError("Cannot update Todo with an empty title");
     }
 
@@ -58,9 +58,8 @@ export const Mutation: IMutation<Context> = {
         completed: input.completed ?? undefined,
         updatedAt: new Date(),
       },
-    })
-    // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
-    .catch((error) => {
+    }).catch((error) => {
+      // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // If the error is a "not found" error, show a better error message.
         if (error.code === "P2025") {
