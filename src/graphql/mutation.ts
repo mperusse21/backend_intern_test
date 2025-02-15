@@ -63,7 +63,7 @@ export const Mutation: IMutation<Context> = {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // If the error is a "not found" error, show a better error message.
         if (error.code === "P2025") {
-          throw new GraphQLError(`Unable to update. No Todo found with ID: ${input.id}`);
+          throw new GraphQLError(`Unable to update Todo. No Todo found with ID: ${input.id}`);
         }
       }
       throw error;
@@ -77,4 +77,29 @@ export const Mutation: IMutation<Context> = {
       updatedAt: todo.updatedAt.toString(),
     };
   },
+    // Deletes a todo with the given ID. Returns the todo if successful.
+    deleteTodo: async (_, { input }, { prisma }) => { 
+      const todo = await prisma.todo.delete({
+        where: {
+          id: input.id,
+        }
+      }).catch((error) => {
+        // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          // If the error is a "not found" error, show a better error message.
+          if (error.code === "P2025") {
+            throw new GraphQLError(`Unable to delete Todo. No Todo found with ID: ${input.id}`);
+          }
+        }
+        throw error;
+      });;
+  
+      return {
+        id: todo.id,
+        title: todo.title,
+        completed: todo.completed,
+        createdAt: todo.createdAt.toString(),
+        updatedAt: todo.updatedAt.toString(),
+      };
+    }
 };
