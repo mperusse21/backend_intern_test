@@ -72,6 +72,7 @@ export type QueryTodoArgs = {
 export type QueryTodosArgs = {
   completed?: InputMaybe<Scalars['Boolean']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+  sortByCreatedAt?: InputMaybe<SortOrder>;
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -80,6 +81,11 @@ export type Something = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
 };
+
+export enum SortOrder {
+  Asc = 'asc',
+  Desc = 'desc'
+}
 
 export type Todo = {
   __typename?: 'Todo';
@@ -176,6 +182,7 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   Something: ResolverTypeWrapper<Something>;
+  SortOrder: SortOrder;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Todo: ResolverTypeWrapper<Todo>;
   UpdateTodoInput: UpdateTodoInput;

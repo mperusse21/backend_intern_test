@@ -24,18 +24,17 @@ export const Query: IQuery<Context> = {
       updatedAt: todo.updatedAt.toString(),
     };
   },
-  // Returns an array of all Todos. Has options to filter by completion status 
-  // or skip/take a certain number of Todos (pagination).
-  todos: async (_, { completed, skip, take }, { prisma }) => {
+  // Returns an array of all Todos. Has options to filter by completion status, 
+  // sort by creation date, or skip/take a certain number of Todos (pagination).
+  todos: async (_, { completed, skip, take, sortByCreatedAt  }, { prisma }) => {
     const todos = await prisma.todo.findMany({
       skip: skip ?? 0,
       take: take ?? undefined,
       where: {
         completed: completed ?? undefined,
       },
-      // Default order is most recent first
       orderBy: {
-        createdAt: 'desc',
+        createdAt: sortByCreatedAt  ?? undefined,
       }
     });
 

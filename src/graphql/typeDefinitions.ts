@@ -17,6 +17,11 @@ export const typeDefs = /* GraphQL */ `
     id: ID!
   }
 
+  enum SortOrder {
+    asc
+    desc
+  }
+
   type Something {
     id: ID!
     name: String!
@@ -40,6 +45,6 @@ export const typeDefs = /* GraphQL */ `
   type Query {
     hello: String
     todo(id: ID!): Todo
-    todos(completed: Boolean, skip: Int, take: Int): [Todo]!
+    todos(completed: Boolean, skip: Int, take: Int, sortByCreatedAt: SortOrder): [Todo]!
   }
 `;
