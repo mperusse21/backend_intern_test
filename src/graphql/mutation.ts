@@ -39,7 +39,6 @@ export const Mutation: IMutation<Context> = {
   // Updates a todo with a provided title and/or completed status.
   updateTodo: async (_, { input }, { prisma }) => {
     // If no input is provided, throw an error.
-    console.log(input);
     if (input.title === undefined && input.completed === undefined) {
       throw new GraphQLError(
         "Please provide a title and/or completion status to update"
