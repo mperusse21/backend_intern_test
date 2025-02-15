@@ -36,4 +36,27 @@ export const Mutation: IMutation<Context> = {
       updatedAt: todo.updatedAt.toString(),
     };
   },
+  // Updates a todo with a provided title and/or completed status.
+  updateTodo: async (_, { input }, { prisma }) => {
+
+    const todo = await prisma.todo.update({
+      where: {
+        id: input.id,
+      },
+      data: {
+        // If either of these are null, converts them to undefined. 
+        // Needed because title and completed aren't nullable in the Todo table.
+        title: input.title ?? undefined,
+        completed: input.completed ?? undefined,
+      },
+    });
+
+    return {
+      id: todo.id,
+      title: todo.title,
+      completed: todo.completed,
+      createdAt: todo.createdAt.toString(),
+      updatedAt: todo.updatedAt.toString(),
+    };
+  },
 };
