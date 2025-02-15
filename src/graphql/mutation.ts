@@ -1,6 +1,7 @@
 import { type MutationResolvers as IMutation } from "./generated/graphql";
 import { Context } from "./context";
 import { GraphQLError } from "graphql/error/GraphQLError";
+import { Prisma } from "@prisma/client";
 
 export const Mutation: IMutation<Context> = {
   createSomething: async (_, { input }, { prisma }) => {
@@ -15,7 +16,7 @@ export const Mutation: IMutation<Context> = {
       name: something.name,
     };
   },
-  // Mutation which adds a todo with a given title. Everything else auto generated.
+  // Adds a todo with a given title. Everything else auto generated.
   createTodo: async (_, { input }, { prisma }) => {
     // Throw an error if the string is empty
     if (input.title.length == 0) {
@@ -40,9 +41,7 @@ export const Mutation: IMutation<Context> = {
   updateTodo: async (_, { input }, { prisma }) => {
     // If no input is provided, throw an error.
     if (input.title === undefined && input.completed === undefined) {
-      throw new GraphQLError(
-        "Please provide a title and/or completion status to update"
-      );
+      throw new GraphQLError("Please provide a title and/or completion status to update");
     }
 
     // Throw an error if the title string is empty
@@ -55,12 +54,20 @@ export const Mutation: IMutation<Context> = {
         id: input.id,
       },
       data: {
-        // If either of these are null, converts them to undefined.
-        // Needed because title and completed aren't nullable in the Todo table.
         title: input.title ?? undefined,
         completed: input.completed ?? undefined,
         updatedAt: new Date(),
       },
+    })
+    // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
+    .catch((error) => {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // If the error is a "not found" error, show a better error message.
+        if (error.code === "P2025") {
+          throw new GraphQLError(`Unable to update. No Todo found with ID: ${input.id}`);
+        }
+      }
+      throw error;
     });
 
     return {
