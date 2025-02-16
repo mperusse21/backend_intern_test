@@ -27,12 +27,27 @@ export const Query: IQuery<Context> = {
   },
   // Returns an array of all Todos. Has options to filter by completion status, 
   // sort by creation date, or skip/take a certain number of Todos (pagination).
-  todos: async (_, { isCompleted, skip, take, sortByCreatedAt  }, { prisma }) => {
+  todos: async (_, { isCompleted, isOverdue, skip, take, sortByCreatedAt }, { prisma }) => {
+    let overdueFilter;
+    // Probably going to move this into utils
+    if (isOverdue != null){
+      if (isOverdue){
+        overdueFilter = {
+          lte: new Date()
+        }
+      } else {
+        overdueFilter = {
+          gt: new Date()
+        }
+      }
+    }
+
     const todos = await prisma.todo.findMany({
       skip: skip ?? 0,
       take: take ?? undefined,
       where: {
         completed: isCompleted ?? undefined,
+        dueDate: overdueFilter ?? undefined
       },
       orderBy: {
         createdAt: sortByCreatedAt  ?? undefined,
