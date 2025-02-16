@@ -29,6 +29,11 @@ export type DeleteTodoInput = {
   id: Scalars['ID']['input'];
 };
 
+export type FilterTodosInput = {
+  isCompleted?: InputMaybe<Scalars['Boolean']['input']>;
+  isOverdue?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createSomething: Something;
@@ -71,10 +76,9 @@ export type QueryTodoArgs = {
 
 
 export type QueryTodosArgs = {
-  isCompleted?: InputMaybe<Scalars['Boolean']['input']>;
-  isOverdue?: InputMaybe<Scalars['Boolean']['input']>;
+  filterBy?: InputMaybe<FilterTodosInput>;
   skip?: InputMaybe<Scalars['Int']['input']>;
-  sortByCreatedAt?: InputMaybe<SortOrder>;
+  sortBy?: InputMaybe<SortTodosInput>;
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -88,6 +92,11 @@ export enum SortOrder {
   Asc = 'asc',
   Desc = 'desc'
 }
+
+export type SortTodosInput = {
+  sortByCreatedAt?: InputMaybe<SortOrder>;
+  sortByDueDate?: InputMaybe<SortOrder>;
+};
 
 export type Todo = {
   __typename?: 'Todo';
@@ -180,12 +189,14 @@ export type ResolversTypes = {
   CreateSomethingInput: CreateSomethingInput;
   CreateTodoInput: CreateTodoInput;
   DeleteTodoInput: DeleteTodoInput;
+  FilterTodosInput: FilterTodosInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   Something: ResolverTypeWrapper<Something>;
   SortOrder: SortOrder;
+  SortTodosInput: SortTodosInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Todo: ResolverTypeWrapper<Todo>;
   UpdateTodoInput: UpdateTodoInput;
@@ -197,11 +208,13 @@ export type ResolversParentTypes = {
   CreateSomethingInput: CreateSomethingInput;
   CreateTodoInput: CreateTodoInput;
   DeleteTodoInput: DeleteTodoInput;
+  FilterTodosInput: FilterTodosInput;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Mutation: {};
   Query: {};
   Something: Something;
+  SortTodosInput: SortTodosInput;
   String: Scalars['String']['output'];
   Todo: Todo;
   UpdateTodoInput: UpdateTodoInput;

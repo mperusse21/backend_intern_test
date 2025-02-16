@@ -1,4 +1,9 @@
 export const typeDefs = /* GraphQL */ `
+  enum SortOrder {
+    asc
+    desc
+  }
+
   input CreateSomethingInput {
     name: String!
   }
@@ -18,9 +23,14 @@ export const typeDefs = /* GraphQL */ `
     id: ID!
   }
 
-  enum SortOrder {
-    asc
-    desc
+  input FilterTodosInput {
+    isCompleted: Boolean
+    isOverdue: Boolean
+  }
+
+  input SortTodosInput {
+    sortByCreatedAt: SortOrder
+    sortByDueDate: SortOrder
   }
 
   type Something {
@@ -48,11 +58,10 @@ export const typeDefs = /* GraphQL */ `
     hello: String
     todo(id: ID!): Todo
     todos(
-      isCompleted: Boolean
-      isOverdue: Boolean
+      filterBy: FilterTodosInput
+      sortBy: SortTodosInput
       skip: Int
       take: Int
-      sortByCreatedAt: SortOrder
     ): [Todo]!
   }
 `;
