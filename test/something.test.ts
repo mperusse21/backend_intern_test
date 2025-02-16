@@ -4,7 +4,7 @@ import app from "../src/app";
 import { prisma } from "../src/graphql/schema";
 import sinon from "sinon";
 
-describe("Something type api tests", () => {
+describe("Something API tests", () => {
   // Reset all stubs after tests finish.
   after(() => {
     sinon.restore();
