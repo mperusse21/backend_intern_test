@@ -1,6 +1,7 @@
 import { type QueryResolvers as IQuery } from "./generated/graphql";
 import { Context } from "./context";
 import { getOverdueFilter } from "../date-utils";
+import { GraphQLError } from "graphql/error/GraphQLError";
 
 export const Query: IQuery<Context> = {
   hello: () => "world",
@@ -28,19 +29,28 @@ export const Query: IQuery<Context> = {
   },
   // Returns an array of all Todos. Has options to filter by completion status,
   // sort by creation date, or skip/take a certain number of Todos (pagination).
-  todos: async (_, { isCompleted, isOverdue, skip, take, sortByCreatedAt }, { prisma }) => {
+  todos: async (_, { filterBy, sortBy, skip, take }, { prisma }) => {
+    if (sortBy?.sortByCreatedAt && sortBy.sortByDueDate) {
+      throw new GraphQLError("Unable to order by multiple criteria. Please select only one.");
+    }
+
+    if (skip != null && skip < 0){
+      throw new GraphQLError("Skip cannot be negative. Please provide an integer of zero or higher");
+    }
+
     // Converts the isOverdue boolean into a filter.
-    const overdueFilter = getOverdueFilter(isOverdue ?? undefined);
+    const overdueFilter = getOverdueFilter(filterBy?.isOverdue ?? undefined);
 
     const foundTodos = await prisma.todo.findMany({
       skip: skip ?? 0,
       take: take ?? undefined,
       where: {
-        completed: isCompleted ?? undefined,
+        completed: filterBy?.isCompleted ?? undefined,
         dueDate: overdueFilter,
       },
       orderBy: {
-        createdAt: sortByCreatedAt ?? undefined,
+        createdAt: sortBy?.sortByCreatedAt ?? undefined,
+        dueDate: sortBy?.sortByDueDate ?? undefined,
       },
     });
 
