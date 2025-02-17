@@ -31,18 +31,20 @@ describe("Something API tests", () => {
     const response = await request(app)
       .post("/graphql")
       .send({ query: "query { hello }" });
-
+      
     expect(response.status).to.be.equal(200);
     expect(response.body.data).to.deep.equal({ hello: "world" });
   });
 
   it("Should respond with created Something and status 200", async () => {
     const response = await request(app).post("/graphql").send({
-      query: `mutation { createSomething(input: {name: "test"}) { name id } }`,
+      query: `mutation { createSomething ( input: {name: "test"} ){ name id } }`,
     });
 
+    const createdSomething = response.body.data.createSomething;
+
     expect(response.status).to.be.equal(200);
-    expect(response.body.data.createSomething.id).to.equal("1234");
-    expect(response.body.data.createSomething.name).to.equal("test");
+    expect(createdSomething.id).to.equal("1234");
+    expect(createdSomething.name).to.equal("test");
   });
 });

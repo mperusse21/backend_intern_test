@@ -56,28 +56,37 @@ describe("Todo API tests", () => {
     it("Should respond with unique Todo and status 200", async () => {
       const response = await request(app)
         .post("/graphql")
-        .send({ query: `query { todo(id: "1234"){ id title }}` });
+        .send({ query: `query { todo(id: "1234"){ id title } }` });
+
+      const foundTodo = response.body.data.todo;
 
       expect(response.status).to.be.equal(200);
-      expect(response.body.data.todo.id).to.equal("1234");
-      expect(response.body.data.todo.title).to.equal("test");
+      expect(foundTodo.id).to.equal("1234");
+      expect(foundTodo.title).to.equal("test");
     });
 
     it("Should respond with array of Todos and status 200", async () => {
       const response = await request(app).post("/graphql").send({
-        query: `query { todos{ id title completed createdAt updatedAt dueDate }}`,
+        query: `query { todos { id title completed createdAt updatedAt dueDate } }`,
       });
 
+      const foundTodos = response.body.data.todos;
+
       expect(response.status).to.be.equal(200);
-      assert.isArray(response.body.data.todos);
-      expect(response.body.data.todos).to.have.lengthOf(2);
-      expect(Object.keys(response.body.data.todos[0])).to.have.lengthOf(6);
+      assert.isArray(foundTodos);
+      expect(foundTodos).to.have.lengthOf(2);
+      expect(Object.keys(foundTodos[0])).to.have.lengthOf(6);
     });
 
     it("Should respond with error message when two order bys applied", async () => {
-      const response = await request(app).post("/graphql").send({
-        query: `query { todos(sortBy: {sortByDueDate: asc, sortByCreatedAt: desc}){ id title completed createdAt updatedAt dueDate }}`,
-      });
+      const response = await request(app)
+        .post("/graphql")
+        .send({
+          query: `query {
+                  todos ( sortBy: {sortByDueDate: asc, sortByCreatedAt: desc} )
+                  { id title completed createdAt updatedAt dueDate }
+                }`,
+        });
 
       const error = response.body.errors[0];
       expect(error.message).to.equal(
@@ -86,9 +95,14 @@ describe("Todo API tests", () => {
     });
 
     it("Should respond with error message when skip is negative", async () => {
-      const response = await request(app).post("/graphql").send({
-        query: `query { todos(skip: -1){ id title completed createdAt updatedAt dueDate }}`,
-      });
+      const response = await request(app)
+        .post("/graphql")
+        .send({
+          query: `query {
+                  todos ( skip: -1 )
+                  { id title completed createdAt updatedAt dueDate }
+                }`,
+        });
 
       const error = response.body.errors[0];
       expect(error.message).to.equal(
@@ -99,30 +113,47 @@ describe("Todo API tests", () => {
 
   describe("Todo Mutation tests", () => {
     it("Should respond with created Todo and status 200", async () => {
-      const response = await request(app).post("/graphql").send({
-        query: `mutation { createTodo(input:{title: "test todo", dueDate:"2025-02-16"}){ id title completed createdAt updatedAt dueDate }}`,
-      });
+      const response = await request(app)
+        .post("/graphql")
+        .send({
+          query: `mutation { 
+                  createTodo ( input: {title: "test todo", dueDate: "2025-02-16"} )
+                  { id title completed createdAt updatedAt dueDate }
+                }`,
+        });
 
+      const createdTodo = response.body.data.createTodo;
       const expectedDate = new Date("2025-02-16").toString();
+
       expect(response.status).to.be.equal(200);
-      expect(response.body.data.createTodo.title).to.equal("test");
-      expect(response.body.data.createTodo.id).to.equal("1234");
-      expect(response.body.data.createTodo.dueDate).to.equal(expectedDate);
+      expect(createdTodo.title).to.equal("test");
+      expect(createdTodo.id).to.equal("1234");
+      expect(createdTodo.dueDate).to.equal(expectedDate);
     });
 
     it("Should respond with error message when trying to create todo with empty title", async () => {
-      const response = await request(app).post("/graphql").send({
-        query: `mutation { createTodo(input:{title: "", dueDate:"2023-01-01"}){ id title completed createdAt updatedAt dueDate }}`,
-      });
+      const response = await request(app)
+        .post("/graphql")
+        .send({
+          query: `mutation {
+                  createTodo ( input: {title: "", dueDate: "2023-01-01"} )
+                  { id title completed createdAt updatedAt dueDate }
+                }`,
+        });
 
       const error = response.body.errors[0];
       expect(error.message).to.equal("Cannot create Todo with an empty title");
     });
 
     it("Should respond with error message when trying to update todo with no data", async () => {
-      const response = await request(app).post("/graphql").send({
-        query: `mutation { updateTodo(input:{id: "1234"}){ id title completed createdAt updatedAt dueDate }}`,
-      });
+      const response = await request(app)
+        .post("/graphql")
+        .send({
+          query: `mutation {
+                  updateTodo ( input: {id: "1234"} )
+                  { id title completed createdAt updatedAt dueDate }
+                }`,
+        });
 
       const error = response.body.errors[0];
       expect(error.message).to.equal(
@@ -131,9 +162,14 @@ describe("Todo API tests", () => {
     });
 
     it("Should respond with error message when trying to update todo with empty title", async () => {
-      const response = await request(app).post("/graphql").send({
-        query: `mutation { updateTodo(input:{id: "1234", title: ""}){ id title completed createdAt updatedAt dueDate }}`,
-      });
+      const response = await request(app)
+        .post("/graphql")
+        .send({
+          query: `mutation {
+                  updateTodo( input: {id: "1234", title: ""} )
+                  { id title completed createdAt updatedAt dueDate }
+                }`,
+        });
 
       const error = response.body.errors[0];
       expect(error.message).to.equal("Cannot update Todo with an empty title");
