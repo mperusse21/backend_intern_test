@@ -18,7 +18,7 @@ export const Mutation: IMutation<Context> = {
     };
   },
   createTodo: async (_, { input }, { prisma }) => {
-    if (input.title === "") {
+    if (input.title.trim() === "") {
       throw new GraphQLError("Cannot create Todo with an empty title");
     }
 
@@ -35,7 +35,7 @@ export const Mutation: IMutation<Context> = {
 
     return {
       id: newTodo.id,
-      title: newTodo.title,
+      title: newTodo.title.trim(),
       completed: newTodo.completed,
       createdAt: newTodo.createdAt.toString(),
       updatedAt: newTodo.updatedAt.toString(),
@@ -49,7 +49,7 @@ export const Mutation: IMutation<Context> = {
       );
     }
 
-    if (input.title === "") {
+    if (input.title?.trim() === "") {
       throw new GraphQLError("Cannot update Todo with an empty title");
     }
 
@@ -60,7 +60,7 @@ export const Mutation: IMutation<Context> = {
           id: input.id,
         },
         data: {
-          title: input.title ?? undefined,
+          title: input.title?.trim() ?? undefined,
           completed: input.completed ?? undefined,
           updatedAt: new Date(),
         },

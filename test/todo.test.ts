@@ -35,14 +35,15 @@ describe("Todo API tests", () => {
       dueDate: new Date("2025-02-16"),
     };
 
+    // withArgs is not working for stubs, resolves to the same value no matter the input.
     prisma.todo.findUnique = sinon
       .stub()
-      .withArgs({ id: "1234" })
+      .withArgs({ where: { id: "1234" } })
       .resolves(singleTodo);
     prisma.todo.findMany = sinon.stub().resolves(findManyResult);
     prisma.todo.create = sinon
       .stub()
-      .withArgs({ input: { title: "test todo", dueDate: "2023-01-01" } })
+      .withArgs({ input: { title: "test todo", dueDate: "2025-02-16" } })
       .resolves(singleTodo);
   });
 
@@ -69,6 +70,7 @@ describe("Todo API tests", () => {
 
       expect(response.status).to.be.equal(200);
       assert.isArray(response.body.data.todos);
+      expect(response.body.data.todos).to.have.lengthOf(2);
       expect(Object.keys(response.body.data.todos[0])).to.have.lengthOf(6);
     });
 
@@ -98,12 +100,13 @@ describe("Todo API tests", () => {
   describe("Todo Mutation tests", () => {
     it("Should respond with created Todo and status 200", async () => {
       const response = await request(app).post("/graphql").send({
-        query: `mutation { createTodo(input:{title: "test todo", dueDate:"2023-01-01"}){ id title completed createdAt updatedAt dueDate }}`,
+        query: `mutation { createTodo(input:{title: "test todo", dueDate:"2025-02-16"}){ id title completed createdAt updatedAt dueDate }}`,
       });
 
       const expectedDate = new Date("2025-02-16").toString();
       expect(response.status).to.be.equal(200);
       expect(response.body.data.createTodo.title).to.equal("test");
+      expect(response.body.data.createTodo.id).to.equal("1234");
       expect(response.body.data.createTodo.dueDate).to.equal(expectedDate);
     });
 
@@ -122,7 +125,9 @@ describe("Todo API tests", () => {
       });
 
       const error = response.body.errors[0];
-      expect(error.message).to.equal("Please provide a title and/or completion status to update");
+      expect(error.message).to.equal(
+        "Please provide a title and/or completion status to update"
+      );
     });
 
     it("Should respond with error message when trying to update todo with empty title", async () => {

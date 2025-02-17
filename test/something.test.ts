@@ -42,6 +42,7 @@ describe("Something API tests", () => {
     });
 
     expect(response.status).to.be.equal(200);
+    expect(response.body.data.createSomething.id).to.equal("1234");
     expect(response.body.data.createSomething.name).to.equal("test");
   });
 });
