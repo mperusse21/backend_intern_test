@@ -1,5 +1,87 @@
 # LUDEX INTERNSHIP TEST
 
+## Added Features
+
+### Queries
+
+Use the **todo** query to get a single todo by its ID. It will return null if not found:
+
+```graphql
+query {
+  todo(
+    id: "some-id"
+  ){
+    id
+    title
+    completed
+    createdAt
+    updatedAt
+    dueDate
+  }
+}
+```
+
+To get multiple todos, use the **todos** query. This query returns an array of all todos by default but also has options to:
+
+- Filter by **completed/incompleted** and/or **upcoming/overdue**.
+- Order by **createdAt** or **dueDate**.
+- Implement pagination using **skip** and **take**. For example, skip the first 3 todos and take the next 5.
+
+Example with all options:
+
+```graphql
+query {
+  todos (
+    // Only use one sortBy, otherwise returns an error
+    sortBy: {sortByDueDate: asc, sortByCreatedAt: desc}
+    filterBy:{isOverdue: true, isCompleted: false}
+    skip: 2
+    take: 3
+  ){
+    id
+    title
+    completed
+    createdAt
+    updatedAt, 
+    dueDate
+  }
+}
+```
+### Mutations
+
+Provides three mutations to create (takes title and optional due date), update, and delete a todo. All three share a similar syntax. Here's an example for update:
+
+
+```graphql
+mutation{
+  updateTodo(
+    input:{
+      id: "some-id"
+      title: "Buy Eggs (done)"
+      completed: true
+    }
+  ){
+    id
+    title
+    completed
+    createdAt
+    updatedAt
+    dueDate
+  }
+}
+```
+### Unit Tests
+
+The project has unit tests using **mocha, chai, supertest, and sinon**. The tests do not require the database or server to be running and can be run directly from the root directory using:
+
+```
+npm run test
+```
+
+Some code coverage is missing for the todo query (not found) and the update/delete mutations, but I tried to cover all input validation.
+
+**Note**: There is a bug using withArgs with the Prisma stubs, causing the functions to return the same response regardless of input. The issue seems to be with comparing two JSON objects. I tried a few possible solutions (sinon.match, changing the format, etc) but could not solve the problem.
+ 
 ## Getting Started
 
 ### Prerequisites

@@ -1,5 +1,8 @@
 import { type MutationResolvers as IMutation } from "./generated/graphql";
 import { Context } from "./context";
+import { GraphQLError } from "graphql/error/GraphQLError";
+import { Prisma } from "@prisma/client";
+import { convertStringToDate } from "../date-utils";
 
 export const Mutation: IMutation<Context> = {
   createSomething: async (_, { input }, { prisma }) => {
@@ -12,6 +15,105 @@ export const Mutation: IMutation<Context> = {
     return {
       id: something.id,
       name: something.name,
+    };
+  },
+  createTodo: async (_, { input }, { prisma }) => {
+    if (input.title.trim() === "") {
+      throw new GraphQLError("Cannot create Todo with an empty title");
+    }
+
+    // Tries to convert the dueDate string, if invalid throws an error.
+    const convertedDueDate = convertStringToDate(input.dueDate ?? undefined);
+
+    // Adds a todo with a given title and optional due date. Everything else auto generated.
+    const newTodo = await prisma.todo.create({
+      data: {
+        title: input.title,
+        dueDate: convertedDueDate,
+      },
+    });
+
+    return {
+      id: newTodo.id,
+      title: newTodo.title.trim(),
+      completed: newTodo.completed,
+      createdAt: newTodo.createdAt.toString(),
+      updatedAt: newTodo.updatedAt.toString(),
+      dueDate: newTodo.dueDate?.toString(),
+    };
+  },
+  updateTodo: async (_, { input }, { prisma }) => {
+    if (input.title === undefined && input.completed === undefined) {
+      throw new GraphQLError(
+        "Please provide a title and/or completion status to update"
+      );
+    }
+
+    if (input.title?.trim() === "") {
+      throw new GraphQLError("Cannot update Todo with an empty title");
+    }
+
+    // Updates the Todo with title and/or completed status. Sets updatedTime automatically.
+    const updatedTodo = await prisma.todo
+      .update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          title: input.title?.trim() ?? undefined,
+          completed: input.completed ?? undefined,
+          updatedAt: new Date(),
+        },
+      })
+      .catch((error) => {
+        // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          // If the error is a "not found" error, show a better error message.
+          if (error.code === "P2025") {
+            throw new GraphQLError(
+              `Unable to update Todo. No Todo found with ID: ${input.id}`
+            );
+          }
+        }
+        throw error;
+      });
+
+    return {
+      id: updatedTodo.id,
+      title: updatedTodo.title,
+      completed: updatedTodo.completed,
+      createdAt: updatedTodo.createdAt.toString(),
+      updatedAt: updatedTodo.updatedAt.toString(),
+      dueDate: updatedTodo.dueDate?.toString(),
+    };
+  },
+  deleteTodo: async (_, { input }, { prisma }) => {
+    const deletedTodo = await prisma.todo
+      .delete({
+        where: {
+          id: input.id,
+        },
+      })
+      .catch((error) => {
+        // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          // If the error is a "not found" error, show a better error message.
+          if (error.code === "P2025") {
+            throw new GraphQLError(
+              `Unable to delete Todo. No Todo found with ID: ${input.id}`
+            );
+          }
+        }
+        throw error;
+      });
+
+    return {
+      id: deletedTodo.id,
+      title: deletedTodo.title,
+      completed: deletedTodo.completed,
+      createdAt: deletedTodo.createdAt.toString(),
+      updatedAt: deletedTodo.updatedAt.toString(),
+      dueDate: deletedTodo.dueDate?.toString(),
     };
   },
 };

@@ -1,17 +1,8 @@
-import express from "express";
-import { yogaPublicRouter } from "./graphql/schema";
+import app from "./app";
 import { cleanStack } from "./utils";
 import { environment } from "./environment";
 
-const app = express();
 const port = environment.PORT;
-
-app.use("/graphql", yogaPublicRouter);
-
-app.get("/", (req, res) => {
-  // redirect to the graphql playground
-  res.redirect("/graphql");
-});
 
 app.listen(port, () => {
   return console.info(`Express is listening at http://localhost:${port}`);
