@@ -31,7 +31,7 @@ export const Query: IQuery<Context> = {
   // sort by creation/due date, or skip/take a certain number of Todos (pagination).
   todos: async (_, { filterBy, sortBy, skip, take }, { prisma }) => {
     if (sortBy?.sortByCreatedAt && sortBy.sortByDueDate) {
-      throw new GraphQLError("Unable to order by multiple criteria. Please select only one.");
+      throw new GraphQLError("Unable to order by multiple criteria. Please select only one");
     }
 
     if (skip != null && skip < 0){

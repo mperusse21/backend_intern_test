@@ -67,4 +67,26 @@ describe("Todo API query tests", () => {
     expect(response.body.data.todos).to.have.lengthOf(2);
     expect(Object.keys(response.body.data.todos[0])).to.have.lengthOf(6);
   });
+
+  it("Should respond with error message when two order bys applied", async () => {
+    const response = await request(app).post("/graphql").send({
+      query: `query { todos(sortBy: {sortByDueDate: asc, sortByCreatedAt: desc}){ id title completed createdAt updatedAt dueDate }}`,
+    });
+
+    const error = response.body.errors[0];
+    expect(error.message).to.equal(
+      "Unable to order by multiple criteria. Please select only one"
+    );
+  });
+
+  it("Should respond with error message when skip is negative", async () => {
+    const response = await request(app).post("/graphql").send({
+      query: `query { todos(skip: -1){ id title completed createdAt updatedAt dueDate }}`,
+    });
+
+    const error = response.body.errors[0];
+    expect(error.message).to.equal(
+      "Skip cannot be negative. Please provide an integer of zero or higher"
+    );
+  });
 });
