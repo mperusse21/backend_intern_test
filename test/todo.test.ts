@@ -56,7 +56,7 @@ describe("Todo API tests", () => {
       const response = await request(app)
         .post("/graphql")
         .send({ query: `query { todo(id: "1234"){ id title }}` });
-        
+
       expect(response.status).to.be.equal(200);
       expect(response.body.data.todo.id).to.equal("1234");
       expect(response.body.data.todo.title).to.equal("test");
@@ -98,13 +98,40 @@ describe("Todo API tests", () => {
   describe("Todo Mutation tests", () => {
     it("Should respond with created Todo and status 200", async () => {
       const response = await request(app).post("/graphql").send({
-        query: `mutation {  createTodo(input:{title: "test todo", dueDate:"2023-01-01" }){ id title completed createdAt updatedAt dueDate }}`,
+        query: `mutation { createTodo(input:{title: "test todo", dueDate:"2023-01-01"}){ id title completed createdAt updatedAt dueDate }}`,
       });
 
       const expectedDate = new Date("2025-02-16").toString();
       expect(response.status).to.be.equal(200);
       expect(response.body.data.createTodo.title).to.equal("test");
       expect(response.body.data.createTodo.dueDate).to.equal(expectedDate);
+    });
+
+    it("Should respond with error message when trying to create todo with empty title", async () => {
+      const response = await request(app).post("/graphql").send({
+        query: `mutation { createTodo(input:{title: "", dueDate:"2023-01-01"}){ id title completed createdAt updatedAt dueDate }}`,
+      });
+
+      const error = response.body.errors[0];
+      expect(error.message).to.equal("Cannot create Todo with an empty title");
+    });
+
+    it("Should respond with error message when trying to update todo with no data", async () => {
+      const response = await request(app).post("/graphql").send({
+        query: `mutation { updateTodo(input:{id: "1234"}){ id title completed createdAt updatedAt dueDate }}`,
+      });
+
+      const error = response.body.errors[0];
+      expect(error.message).to.equal("Please provide a title and/or completion status to update");
+    });
+
+    it("Should respond with error message when trying to update todo with empty title", async () => {
+      const response = await request(app).post("/graphql").send({
+        query: `mutation { updateTodo(input:{id: "1234", title: ""}){ id title completed createdAt updatedAt dueDate }}`,
+      });
+
+      const error = response.body.errors[0];
+      expect(error.message).to.equal("Cannot update Todo with an empty title");
     });
   });
 });
