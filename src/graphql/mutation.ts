@@ -22,13 +22,14 @@ export const Mutation: IMutation<Context> = {
       throw new GraphQLError("Cannot create Todo with an empty title");
     }
 
+    // Tries to convert the dueDate string, if invalid throws an error.
     const convertedDueDate = convertStringToDate(input.dueDate ?? undefined);
-    
+
     // Adds a todo with a given title and optional due date. Everything else auto generated.
     const newTodo = await prisma.todo.create({
       data: {
         title: input.title,
-        dueDate: convertedDueDate 
+        dueDate: convertedDueDate,
       },
     });
 
@@ -38,38 +39,44 @@ export const Mutation: IMutation<Context> = {
       completed: newTodo.completed,
       createdAt: newTodo.createdAt.toString(),
       updatedAt: newTodo.updatedAt.toString(),
-      dueDate: newTodo.dueDate?.toString()
+      dueDate: newTodo.dueDate?.toString(),
     };
   },
-  // Updates a todo with a provided title and/or completed status.
   updateTodo: async (_, { input }, { prisma }) => {
     if (input.title === undefined && input.completed === undefined) {
-      throw new GraphQLError("Please provide a title and/or completion status to update");
+      throw new GraphQLError(
+        "Please provide a title and/or completion status to update"
+      );
     }
 
     if (input.title === "") {
       throw new GraphQLError("Cannot update Todo with an empty title");
     }
 
-    const updatedTodo = await prisma.todo.update({
-      where: {
-        id: input.id,
-      },
-      data: {
-        title: input.title ?? undefined,
-        completed: input.completed ?? undefined,
-        updatedAt: new Date(),
-      },
-    }).catch((error) => {
-      // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // If the error is a "not found" error, show a better error message.
-        if (error.code === "P2025") {
-          throw new GraphQLError(`Unable to update Todo. No Todo found with ID: ${input.id}`);
+    // Updates the Todo with title and/or completed status. Sets updatedTime automatically.
+    const updatedTodo = await prisma.todo
+      .update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          title: input.title ?? undefined,
+          completed: input.completed ?? undefined,
+          updatedAt: new Date(),
+        },
+      })
+      .catch((error) => {
+        // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          // If the error is a "not found" error, show a better error message.
+          if (error.code === "P2025") {
+            throw new GraphQLError(
+              `Unable to update Todo. No Todo found with ID: ${input.id}`
+            );
+          }
         }
-      }
-      throw error;
-    });
+        throw error;
+      });
 
     return {
       id: updatedTodo.id,
@@ -77,33 +84,36 @@ export const Mutation: IMutation<Context> = {
       completed: updatedTodo.completed,
       createdAt: updatedTodo.createdAt.toString(),
       updatedAt: updatedTodo.updatedAt.toString(),
-      dueDate: updatedTodo.dueDate?.toString()
+      dueDate: updatedTodo.dueDate?.toString(),
     };
   },
-  // Deletes a todo with the given ID. Returns the todo if successful.
-  deleteTodo: async (_, { input }, { prisma }) => { 
-    const deletedTodo = await prisma.todo.delete({
-      where: {
-        id: input.id,
-      }
-    }).catch((error) => {
-      // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // If the error is a "not found" error, show a better error message.
-        if (error.code === "P2025") {
-          throw new GraphQLError(`Unable to delete Todo. No Todo found with ID: ${input.id}`);
+  deleteTodo: async (_, { input }, { prisma }) => {
+    const deletedTodo = await prisma.todo
+      .delete({
+        where: {
+          id: input.id,
+        },
+      })
+      .catch((error) => {
+        // Modified from: https://www.prisma.io/docs/orm/prisma-client/debugging-and-troubleshooting/handling-exceptions-and-errors
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          // If the error is a "not found" error, show a better error message.
+          if (error.code === "P2025") {
+            throw new GraphQLError(
+              `Unable to delete Todo. No Todo found with ID: ${input.id}`
+            );
+          }
         }
-      }
-      throw error;
-    });
-  
+        throw error;
+      });
+
     return {
       id: deletedTodo.id,
       title: deletedTodo.title,
       completed: deletedTodo.completed,
       createdAt: deletedTodo.createdAt.toString(),
       updatedAt: deletedTodo.updatedAt.toString(),
-      dueDate: deletedTodo.dueDate?.toString()
+      dueDate: deletedTodo.dueDate?.toString(),
     };
-  }
+  },
 };
