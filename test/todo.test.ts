@@ -145,6 +145,23 @@ describe("Todo API tests", () => {
       expect(error.message).to.equal("Cannot create Todo with an empty title");
     });
 
+    it("Should respond with error message when trying to create todo with invalid due date", async () => {
+      const response = await request(app)
+        .post("/graphql")
+        .send({
+          query: `mutation {
+                  createTodo ( input: {title: "test", dueDate: "a"} )
+                  { id title completed createdAt updatedAt dueDate }
+                }`,
+        });
+
+      const error = response.body.errors[0];
+      expect(error.message).to.equal(
+        "Due date string 'a' is not in a valid format." +
+          " Please try using either YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss.sssZ."
+      );
+    });
+
     it("Should respond with error message when trying to update todo with no data", async () => {
       const response = await request(app)
         .post("/graphql")
